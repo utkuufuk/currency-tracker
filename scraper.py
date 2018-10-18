@@ -11,7 +11,8 @@ AGENT = "Mozilla/5.0 Chrome/47.0.2526.106 Safari/537.36"
 SITE_URL = "https://tr.investing.com/currencies/"
 USD_SUFFIX = "usd-try-historical-data"
 EUR_SUFFIX = "eur-try-historical-data"
-BAR_WIDTH = 0.25
+GAU_SUFFIX = "gau-try-historical-data"
+GAU_SCALE = 35
 
 def createSoup(url):
     return BeautifulSoup(requests.get(url, headers={"User-Agent": AGENT}).text, "lxml")
@@ -33,26 +34,34 @@ getRateHistory(SITE_URL + USD_SUFFIX, usdRates)
 with open("usd.json", 'w') as fp:
     json.dump(usdRates, fp)
 
-# fetch EURO history
+# fetch EUR history
 eurRates = OrderedDict()
 getRateHistory(SITE_URL + EUR_SUFFIX, eurRates)
-with open("euro.json", 'w') as fp:
+with open("eur.json", 'w') as fp:
     json.dump(eurRates, fp)
 
-# reverse the date order
+# fetch GAU history
+gauRates = OrderedDict()
+getRateHistory(SITE_URL + GAU_SUFFIX, gauRates)
+with open("gau.json", 'w') as fp:
+    json.dump(gauRates, fp)
+
+# fix date order
 usdRates = OrderedDict(reversed(usdRates.items()))
 eurRates = OrderedDict(reversed(eurRates.items()))
+gauRates = OrderedDict(reversed(gauRates.items()))
 
-# plot the historical data
-numBins = len(list(usdRates.keys()))
-xIndices = np.arange(numBins)
+# plot historical data
+dates = list(usdRates.keys())
+lbl = "GAU (x" + str(GAU_SCALE) + ")"
 fig, ax = plt.subplots()
-ax.bar(xIndices, list(usdRates.values()), BAR_WIDTH, label="USD")
-ax.bar(xIndices + BAR_WIDTH, list(eurRates.values()), BAR_WIDTH, label="EURO")
-ax.set_xticklabels([label[:-5] for label in list(usdRates.keys())])
-ax.set_xticks(xIndices + BAR_WIDTH / 2)
+x = range(0, len(dates)) 
+ticks = [date[:5] for date in dates]
+plt.xticks(x, ticks)
+ax.plot(x, list(eurRates.values()), color='green', label="EUR")
+ax.plot(x, [val / GAU_SCALE for val in list(gauRates.values())], color='orange', label=lbl)
+ax.plot(x, list(usdRates.values()), color='blue', label="USD")
 ax.legend()
 ax.grid()
 fig.tight_layout()
-plt.axis([0, numBins, 4.5, 7.5])
 plt.show()
