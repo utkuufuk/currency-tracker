@@ -33,18 +33,21 @@ usdRates = OrderedDict()
 getRateHistory(SITE_URL + USD_SUFFIX, usdRates)
 with open("usd.json", 'w') as fp:
     json.dump(usdRates, fp)
+print("Fetched USD history.")
 
 # fetch EUR history
 eurRates = OrderedDict()
 getRateHistory(SITE_URL + EUR_SUFFIX, eurRates)
 with open("eur.json", 'w') as fp:
     json.dump(eurRates, fp)
+print("Fetched EUR history.")
 
 # fetch GAU history
 gauRates = OrderedDict()
 getRateHistory(SITE_URL + GAU_SUFFIX, gauRates)
 with open("gau.json", 'w') as fp:
     json.dump(gauRates, fp)
+print("Fetched GAU history.")
 
 # fix date order
 usdRates = OrderedDict(reversed(usdRates.items()))
